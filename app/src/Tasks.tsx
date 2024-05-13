@@ -1,5 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createTask, getTasks, Task } from "./repository.ts";
+import { useState } from "react";
+import { createTask, getTasks, Task, updateTask } from "./repository.ts";
+
+const useTasks = () => {
+  return useQuery({
+    queryKey: ["tasks"],
+    queryFn: getTasks,
+  });
+};
 
 const useCreateTask = () => {
   const queryClient = useQueryClient();
@@ -10,6 +18,52 @@ const useCreateTask = () => {
       queryClient.refetchQueries(["tasks"]);
     },
   });
+};
+
+const useUpdateTask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateTask,
+    onSuccess: () => {
+      queryClient.refetchQueries(["tasks"]);
+    },
+  });
+};
+
+export const TaskItem = ({ task }: { task: Task }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const updateTask = useUpdateTask();
+
+  return (
+    <li className="flex justify-between items-center">
+      {isEditing ? (
+        <input
+          type="text"
+          title="Task Title"
+          defaultValue={task.title}
+          onKeyDown={(e) => {
+            if (!e.nativeEvent.isComposing && e.key === "Enter") {
+              updateTask.mutate({ ...task, title: e.currentTarget.value });
+              setIsEditing(false);
+            }
+          }}
+          className="bg-gray-700 py-2 px-2 rounded w-fit"
+        />
+      ) : (
+        <h4>{task.title}</h4>
+      )}
+      <button
+        type="button"
+        className="bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded"
+        onClick={() => {
+          setIsEditing(!isEditing);
+        }}
+      >
+        {isEditing ? "Cancel" : "Edit"}
+      </button>
+    </li>
+  );
 };
 
 export const Tasks = () => {
@@ -32,7 +86,7 @@ export const Tasks = () => {
       <h1 className="text-7xl">Tasks</h1>
       <ul className="flex flex-col gap-4">
         {data.tasks.map((task: Task, index) => (
-          <li key={index}>{task.title}</li>
+          <TaskItem key={index} task={task} />
         ))}
       </ul>
       <button

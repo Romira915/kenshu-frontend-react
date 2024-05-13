@@ -22,3 +22,12 @@ export const createTask = async (): Promise<Task> => {
         })
     ).json();
 }
+
+export const updateTask = async (task: Task): Promise<Task> => {
+    return await (
+        await fetch(`${TASK_API_BASE_URL}/api/tasks/${task.id}`, {
+            method: "PATCH",
+            body: JSON.stringify(task),
+        })
+    ).json();
+}

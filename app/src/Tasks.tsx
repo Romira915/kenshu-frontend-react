@@ -121,10 +121,6 @@ export const Tasks = () => {
   const fetchTasks = useTasks();
   const createTask = useCreateTask();
 
-  if (fetchTasks.isLoading) {
-    return <h1>Loading...</h1>;
-  }
-
   if (fetchTasks.isError) {
     return <h1>Error: {String(fetchTasks.error)}</h1>;
   }

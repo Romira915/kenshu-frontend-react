@@ -3,6 +3,7 @@ import { useState } from "react";
 import {
   completeTask,
   createTask,
+  deleteTask,
   getTasks,
   Task,
   updateTask,
@@ -48,10 +49,22 @@ const useCompleteTask = () => {
   });
 };
 
+const useDeleteTask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteTask,
+    onSuccess: () => {
+      queryClient.refetchQueries(["tasks"]);
+    },
+  });
+};
+
 export const TaskItem = ({ task }: { task: Task }) => {
   const [isEditing, setIsEditing] = useState(false);
   const updateTask = useUpdateTask();
   const completeTask = useCompleteTask();
+  const deleteTask = useDeleteTask();
 
   return (
     <li className="flex justify-between items-center">
@@ -87,6 +100,17 @@ export const TaskItem = ({ task }: { task: Task }) => {
           onClick={() => completeTask.mutate(task.id)}
         >
           Complete
+        </button>
+        <button
+          type="button"
+          className="bg-red-500 hover:bg-red-700 py-2 px-4 rounded"
+          onClick={() => {
+            if (confirm("Are you sure you want to delete this task?")) {
+              deleteTask.mutate(task.id);
+            }
+          }}
+        >
+          Delete
         </button>
       </div>
     </li>

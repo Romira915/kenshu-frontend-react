@@ -6,7 +6,7 @@ const queryClient = new QueryClient();
 export const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="bg-slate-950 w-screen h-screen">
+      <div className="bg-slate-950 w-screen min-h-screen h-fit">
         <Tasks />
       </div>
     </QueryClientProvider>

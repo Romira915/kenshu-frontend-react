@@ -1,19 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-
-type Task = {
-  id: number;
-  title: string;
-  createdAt: string;
-  finishedAt: string | null;
-};
-
-type TasksResponse = {
-  tasks: Task[];
-};
-
-const getTasks = async (): Promise<TasksResponse> => {
-  return await (await fetch("http://localhost:8000/api/tasks")).json();
-};
+import { getTasks, Task } from "./repository.ts";
 
 export const Tasks = () => {
   const query = useQuery({
@@ -33,8 +19,8 @@ export const Tasks = () => {
     <main className="container mx-auto flex flex-col gap-8 p-8 text-white">
       <h1 className="text-7xl">Tasks</h1>
       <ul className="flex flex-col gap-4">
-        {query.data.tasks.map((task: Task) => (
-          <li>{task.title}</li>
+        {query.data.tasks.map((task: Task, index) => (
+          <li key={index}>{task.title}</li>
         ))}
       </ul>
     </main>

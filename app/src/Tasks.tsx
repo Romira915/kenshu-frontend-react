@@ -17,7 +17,7 @@ export const Tasks = () => {
     queryKey: ["tasks"],
     queryFn: getTasks,
   });
-  const createTask = useCreateTask();
+  const { mutate: createTask } = useCreateTask();
 
   if (isLoading) {
     return <h1>Loading...</h1>;
@@ -38,7 +38,7 @@ export const Tasks = () => {
       <button
         type="button"
         className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded w-fit self-center"
-        onClick={() => createTask.mutate()}
+        onClick={() => createTask()}
       >
         Create Task
       </button>

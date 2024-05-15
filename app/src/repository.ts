@@ -14,3 +14,11 @@ export type TasksList = {
 export const getTasks = async (): Promise<TasksList> => {
     return await (await fetch(`${TASK_API_BASE_URL}/api/tasks`)).json();
 };
+
+export const createTask = async (): Promise<Task> => {
+    return await (
+        await fetch(`${TASK_API_BASE_URL}/api/tasks`, {
+            method: "POST",
+        })
+    ).json();
+}

@@ -31,3 +31,12 @@ export const updateTask = async (task: Task): Promise<Task> => {
         })
     ).json();
 }
+
+export const completeTask = async (task_id: number): Promise<Task> => {
+    return await (
+        await fetch(`${TASK_API_BASE_URL}/api/tasks/${task_id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ finishedAt: new Date().toISOString() }),
+        })
+    ).json();
+}

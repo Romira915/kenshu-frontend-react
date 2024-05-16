@@ -1,6 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { createTask, getTasks, Task, updateTask } from "./repository.ts";
+import {
+  completeTask,
+  createTask,
+  getTasks,
+  Task,
+  updateTask,
+} from "./repository.ts";
 
 const useTasks = () => {
   return useQuery({
@@ -31,9 +37,21 @@ const useUpdateTask = () => {
   });
 };
 
+const useCompleteTask = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: completeTask,
+    onSuccess: () => {
+      queryClient.refetchQueries(["tasks"]);
+    },
+  });
+};
+
 export const TaskItem = ({ task }: { task: Task }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const updateTask = useUpdateTask();
+  const { mutate: updateTask } = useUpdateTask();
+  const { mutate: completeTask } = useCompleteTask();
 
   return (
     <li className="flex justify-between items-center">
@@ -44,24 +62,35 @@ export const TaskItem = ({ task }: { task: Task }) => {
           defaultValue={task.title}
           onKeyDown={(e) => {
             if (!e.nativeEvent.isComposing && e.key === "Enter") {
-              updateTask.mutate({ ...task, title: e.currentTarget.value });
+              updateTask({ ...task, title: e.currentTarget.value });
               setIsEditing(false);
             }
           }}
           className="bg-gray-700 py-2 px-2 rounded w-fit"
         />
       ) : (
-        <h4>{task.title}</h4>
+        <h4 className={task.finishedAt && "line-through text-gray-400"}>
+          {task.title}
+        </h4>
       )}
-      <button
-        type="button"
-        className="bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded"
-        onClick={() => {
-          setIsEditing(!isEditing);
-        }}
-      >
-        {isEditing ? "Cancel" : "Edit"}
-      </button>
+      <div className="flex gap-4 justify-center">
+        <button
+          type="button"
+          className="bg-blue-500 hover:bg-blue-700 py-2 px-4 rounded"
+          onClick={() => {
+            setIsEditing(!isEditing);
+          }}
+        >
+          {isEditing ? "Cancel" : "Edit"}
+        </button>
+        <button
+          type="button"
+          className="bg-green-500 hover:bg-green-700 py-2 px-4 rounded"
+          onClick={() => completeTask(task.id)}
+        >
+          Complete
+        </button>
+      </div>
     </li>
   );
 };

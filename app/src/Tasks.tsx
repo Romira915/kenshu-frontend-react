@@ -9,13 +9,6 @@ import {
   updateTask,
 } from "./repository.ts";
 
-const useTasks = () => {
-  return useQuery({
-    queryKey: ["tasks"],
-    queryFn: getTasks,
-  });
-};
-
 const useCreateTask = () => {
   const queryClient = useQueryClient();
 
@@ -62,9 +55,9 @@ const useDeleteTask = () => {
 
 export const TaskItem = ({ task }: { task: Task }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const updateTask = useUpdateTask();
-  const completeTask = useCompleteTask();
-  const deleteTask = useDeleteTask();
+  const { mutate: updateTask } = useUpdateTask();
+  const { mutate: completeTask } = useCompleteTask();
+  const { mutate: deleteTask } = useDeleteTask();
 
   return (
     <li className="flex justify-between items-center">
@@ -75,14 +68,16 @@ export const TaskItem = ({ task }: { task: Task }) => {
           defaultValue={task.title}
           onKeyDown={(e) => {
             if (!e.nativeEvent.isComposing && e.key === "Enter") {
-              updateTask.mutate({ ...task, title: e.currentTarget.value });
+              updateTask({ ...task, title: e.currentTarget.value });
               setIsEditing(false);
             }
           }}
           className="bg-gray-700 py-2 px-2 rounded w-fit"
         />
       ) : (
-        <h4 className={task.finishedAt && "line-through"}>{task.title}</h4>
+        <h4 className={task.finishedAt && "line-through text-gray-400"}>
+          {task.title}
+        </h4>
       )}
       <div className="flex gap-4 justify-center">
         <button
@@ -97,7 +92,7 @@ export const TaskItem = ({ task }: { task: Task }) => {
         <button
           type="button"
           className="bg-green-500 hover:bg-green-700 py-2 px-4 rounded"
-          onClick={() => completeTask.mutate(task.id)}
+          onClick={() => completeTask(task.id)}
         >
           Complete
         </button>
@@ -106,7 +101,7 @@ export const TaskItem = ({ task }: { task: Task }) => {
           className="bg-red-500 hover:bg-red-700 py-2 px-4 rounded"
           onClick={() => {
             if (confirm("Are you sure you want to delete this task?")) {
-              deleteTask.mutate(task.id);
+              deleteTask(task.id);
             }
           }}
         >
@@ -118,29 +113,32 @@ export const TaskItem = ({ task }: { task: Task }) => {
 };
 
 export const Tasks = () => {
-  const fetchTasks = useTasks();
-  const createTask = useCreateTask();
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: getTasks,
+  });
+  const { mutate: createTask } = useCreateTask();
 
-  if (fetchTasks.isLoading) {
+  if (isLoading) {
     return <h1>Loading...</h1>;
   }
 
-  if (fetchTasks.isError) {
-    return <h1>Error: {String(fetchTasks.error)}</h1>;
+  if (isError) {
+    return <h1>Error: {String(error)}</h1>;
   }
 
   return (
     <main className="container mx-auto flex flex-col gap-8 p-8 text-white">
       <h1 className="text-7xl">Tasks</h1>
       <ul className="flex flex-col gap-4">
-        {fetchTasks.data.tasks.map((task: Task, index) => (
+        {data.tasks.map((task: Task, index) => (
           <TaskItem key={index} task={task} />
         ))}
       </ul>
       <button
         type="button"
         className="bg-blue-500 hover:bg-blue-700 text-white py-2 px-4 rounded w-fit self-center"
-        onClick={() => createTask.mutate()}
+        onClick={() => createTask()}
       >
         Create Task
       </button>

@@ -113,15 +113,11 @@ export const TaskItem = ({ task }: { task: Task }) => {
 };
 
 export const Tasks = () => {
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isError, error } = useQuery({
     queryKey: ["tasks"],
     queryFn: getTasks,
   });
   const { mutate: createTask } = useCreateTask();
-
-  if (isLoading) {
-    return <h1>Loading...</h1>;
-  }
 
   if (isError) {
     return <h1>Error: {String(error)}</h1>;

@@ -40,3 +40,9 @@ export const completeTask = async (task_id: number): Promise<Task> => {
         })
     ).json();
 }
+
+export const deleteTask = async (task_id: number): Promise<void> => {
+    await fetch(`${TASK_API_BASE_URL}/api/tasks/${task_id}`, {
+        method: "DELETE",
+    });
+}

@@ -12,6 +12,8 @@ export type TasksList = {
 };
 
 export const getTasks = async (): Promise<TasksList> => {
+    // Suspense demo
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     return await (await fetch(`${TASK_API_BASE_URL}/api/tasks`)).json();
 };
 
